@@ -149,10 +149,12 @@ python checkweb.py -u=https://www.microsoft.com -waf -sec -w -c -b -t -tec -psca
 
 ```
 # Ajustes de Fuerza bruta DNS
---dnsbrute=S o -bru=S    SMALL Lista 150 subdominios
+```sh
+--dnsbrute=S o -bru=S    SMALL Lista 150 subdominios 
 --dnsbrute=M o -bru=M    MEDIUM diccionario 500 subdominios
 --dnsbrute=L o -bru=L    LARGE diccionario 1.000 subdominios
 --dnsbrute=XL o -bru=XL  XLARGE diccionario 10.000 subdominios
+```
 
 # Video
 [![Demo CheckWeb](https://s1.gifyu.com/images/checkweb.md.gif)] <br>
