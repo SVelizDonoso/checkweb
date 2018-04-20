@@ -167,6 +167,6 @@ Este software se creo SOLAMENTE para fines educativos. No soy responsable de su 
 @sveliz https://github.com/SVelizDonoso/
 
 # Reporte HTML Demo
- https://svelisdonoso.github.com/checkweb/reporte.html
+ https://svelizdonoso.github.io/checkweb/reporte.html
 
 
