@@ -71,8 +71,8 @@ python checkweb.py
     Correo:    cyslabs@gmail.com
 
     
-usage: wafid.py [-h] [-u URL] [-waf] [-sec] [-w] [-c] [-b] [-bru BRUTE]
-                [-tz TZONE] [-t] [-tec] [-pscan] [-r REPORTE] [-l] [--version]
+usage: checkweb.py [-h] [-u URL] [-waf] [-sec] [-w] [-c] [-b] [-bru BRUTE]
+                [-tz] [-t] [-tec] [-pscan] [-r REPORTE] [-l] [--version]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -84,8 +84,7 @@ optional arguments:
   -b, --banner          Obtener Banner HTTP
   -bru BRUTE, --dnsbrute BRUTE 
                         Fuerza Bruta DNS
-  -tz TZONE, --tzone TZONE
-                        Transferencia de Zona DNS
+  -tz 			Transferencia de Zona DNS
   -t, --tracert         Determinar la ruta que toma un paquete para alcanzar
                         su destino.
   -tec, --tecnologia    Obtener Tecnologia Web Usada
@@ -146,7 +145,7 @@ python checkweb.py --list
 # Uso de la Herramienta
 ```sh
 
-python checkweb.py -u=https://www.microsoft.com -waf -sec -w -c -b -t -tec -pscan -brut=S -tz=microsoft.com -r=/tmp/reporte.htm
+python checkweb.py -u https://www.microsoft.com -waf -sec -w -c -b -bru=S -tz -t -tec -pscan -r=/tmp/reporte.htm
 
 ```
 # Ajustes de Fuerza bruta DNS
