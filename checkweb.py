@@ -1,7 +1,9 @@
+
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-# WHATWAFF es creado para reconocimiento de objetivos WEB
+# CHECKWEB 2.0
+# CHECKWEB es creado para reconocimiento de objetivos WEB
 # este escript deberia ser usado antes de cualquier escaneo de vulnerabilidades a un sitio web
 # Creacion 2018
 # autor: @svelizdonoso
@@ -111,7 +113,7 @@ def getwhois(ip):
 	print "[*] Realizando Whois a Servidor: "+ip
 	print ""
 	if r.status_code == 200:
-		print r.text
+		#print r.text
 		soup = BeautifulSoup(r.text,"lxml")
 		res = soup.find('pre').getText()
 		print res
@@ -148,8 +150,14 @@ def getbruteDNS(url,tipo='S'):
 		dicc = cwd +'/dic/subdomains-1000.txt'
 	if tipo =='XL':
 		dicc = cwd +'/dic/subdomains-10000.txt'
-	#print dicc
-	dominio = url.replace("www.", "")
+	
+	div = url.split(".")
+	if len(div) <= 2:
+		dominio = url
+	else:
+		div.pop(0)
+		dominio = ".".join(div)
+
 	print "[*] Realizando Fuerza Bruta DNS.."
 	print "[*] Espere un Momento..."
 	print ""
@@ -166,7 +174,12 @@ def getbruteDNS(url,tipo='S'):
 	
 def transferZone(host):
 	msj = ""
-        hostname = host.replace("www.", "")
+        div = host.split(".")
+	if len(div) <= 2:
+		hostname = host
+	else:
+		div.pop(0)
+		hostname = ".".join(div)
 	answers = dns.resolver.query(hostname,'NS')
 	for server in answers:
 		zona = ""
@@ -321,7 +334,7 @@ class SecurityHeaders():
             headers = res.getheaders()
         except socket.gaierror:
             print '[*] Fallo la Solicitud HTTP '
-            return False
+            #return False
 
        
         if (res.status >= 300 and res.status < 400  and follow_redirects > 0):
@@ -594,10 +607,10 @@ def traceroute(dest_addr, max_hops=30, timeout=0.2):
         if curr_addr == dest_addr:
             break
 def quitURL(dest_name):
-	sitio =dest_name.replace("http://", "")
-	sitio = sitio.replace("https://", "")
-	sitio = sitio.replace("/", "")
-        return sitio
+	parsed = urlparse(dest_name)
+        protocol = parsed[0]
+        hostname = parsed[1]
+        return hostname
 
 
 
@@ -721,7 +734,7 @@ def htmlBody(cod):
   			        """+cod+"""
 			</div>
 		        <div class="footer">
-  			    <center><p>WhatWAF-2018 - Developer @svelizdonoso </p></center>
+  			    <center><p>CheckWeb 2.0 2018 - Developer @svelizdonoso </p></center>
 		       </div>
 		</body>
 		</html>
@@ -754,7 +767,7 @@ def help():
 	parser.add_argument('-c', '--country',action='store_true', dest='country',help='Obtener Informacion Pais')
 	parser.add_argument('-b', '--banner',action='store_true', dest='banner',help='Obtener Banner HTTP')
 	parser.add_argument('-bru', '--dnsbrute', action='store',dest='brute',help='Fuerza Bruta DNS')
-	parser.add_argument('-tz', '--tzone',  dest='tzone',action='store',help='Transferencia de Zona DNS')
+	parser.add_argument('-tz', '--tzone',  dest='tzone',action='store_true',help='Transferencia de Zona DNS')
         parser.add_argument('-t', '--tracert',action='store_true', dest='tracert',help='Determinar la ruta que toma un paquete para alcanzar su destino. ')
 	parser.add_argument('-tec', '--tecnologia',action='store_true', dest='tec',help='Obtener Tecnologia Web Usada ')
 	parser.add_argument('-pscan', '--portscan',action='store_true', dest='pscan',help='Escaneo de Puertos Top 1000. ')
@@ -786,8 +799,8 @@ if __name__ == '__main__':
     if res.brute !=None and res.brute !="":
 	getbruteDNS(destname[0],res.brute)
 	fuente += tableBruteDNS()
-    if res.tzone !=None and res.tzone !="":
-	transferZone(res.tzone)
+    if res.tzone:
+	transferZone(destname[0])
 	fuente += tableTZone()
     if res.waf:
 	wafidentify = whatwaf(res.url)
@@ -822,8 +835,6 @@ if __name__ == '__main__':
 	    CreateReport(res.reporte,htmlBody(fuente))    
     else:
         sys.exit()
-
-
 
 
 
