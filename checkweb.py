@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
@@ -201,42 +200,53 @@ def transferZone(host):
 	print ""
 
 def bannerHTTP(host):
-	page = urllib.urlopen(host)
-        resp =page.info()
-    	print "[*] Banner HTTP Completo: "
-	print ""
-    	print str(resp)
-    	print ""
-        bann.append(str(resp))
+        try:
+		page = urllib.urlopen(host)
+		resp =page.info()
+	    	print "[*] Banner HTTP Completo: "
+		print ""
+	    	print str(resp)
+	    	print ""
+		bann.append(str(resp))
+	except:
+		bann.append("N/A")
+		print "[*] Error al obtener banner del servidor!"
 
 def tecnologHTTP(host):
-        print "[*] Obteniendo Tecnologia Web: "
-	print ""
-	tecnologias = []
-	i = 0
-	a = builtwith.parse(host)
-	for x in a:
-    		tecnologias.append(x)
-	for z in tecnologias:
-    		for v in a[z]:
-       			print z + ":" + v
-			tecnolog.append(z + ":" + v)
-	print ""
+	try:
+		print "[*] Obteniendo Tecnologia Web: "
+		print ""
+		tecnologias = []
+		i = 0
+		a = builtwith.parse(host)
+		for x in a:
+	    		tecnologias.append(x)
+		for z in tecnologias:
+	    		for v in a[z]:
+	       			print z + ":" + v
+				tecnolog.append(z + ":" + v)
+		print ""
+	except:
+		print "[*] Error al obtener Tecnologias del servidor!"
+		tecnolog.append("N/A:N/A")
 
 def portScan(host):
-	print "[*] Realizando el Escaneo de Puertos con Nmap (TOP 1000)"
-	print "Espere un momento......"
-	print ""
-	nmScan = nmap.PortScanner()
-	nmScan.scan(str(host), arguments='-sV --min-parallelism 150 --max-parallelism 200 ')
-   	print "[*] Host: " + str(host)
-   	print "[*] Estado:"+ nmScan[str(host)]['status']['state']
-   	if nmScan[host].state() == "up":
-      		for port in nmScan[str(host)]['tcp']:
-          		thisDict = nmScan[str(host)]['tcp'][port]
-          		print str(host) + ':' + str(port) + ':' + thisDict['product'] + ':' + thisDict['version'] + ":" + thisDict['name'] +  ":" + thisDict['state'] + ":" + thisDict['extrainfo']
-			ptscan.append(str(host) + ':' + str(port) + ':' + thisDict['product'] + ':' + thisDict['version'] + ":" + thisDict['name'] +  ":" + thisDict['state'] + ":" + thisDict['extrainfo'])
-          		
+	try:
+		print "[*] Realizando el Escaneo de Puertos con Nmap (TOP 1000)"
+		print "Espere un momento......"
+		print ""
+		nmScan = nmap.PortScanner()
+		nmScan.scan(str(host), arguments='-sV --min-parallelism 150 --max-parallelism 200 ')
+	   	print "[*] Host: " + str(host)
+	   	print "[*] Estado:"+ nmScan[str(host)]['status']['state']
+	   	if nmScan[host].state() == "up":
+	      		for port in nmScan[str(host)]['tcp']:
+		  		thisDict = nmScan[str(host)]['tcp'][port]
+		  		print str(host) + ':' + str(port) + ':' + thisDict['product'] + ':' + thisDict['version'] + ":" + thisDict['name'] +  ":" + thisDict['state'] + ":" + thisDict['extrainfo']
+				ptscan.append(str(host) + ':' + str(port) + ':' + thisDict['product'] + ':' + thisDict['version'] + ":" + thisDict['name'] +  ":" + thisDict['state'] + ":" + thisDict['extrainfo'])
+	except:
+		print "[*] Error al obtener Puertos del servidor!"
+		ptscan.append("N/A:N/A:N/A:N/A:N/A:N/A:N/A" )	  		
 
 class SecurityHeaders():
     def __init__(self):
@@ -334,7 +344,7 @@ class SecurityHeaders():
             headers = res.getheaders()
         except socket.gaierror:
             print '[*] Fallo la Solicitud HTTP '
-            #return False
+            return False
 
        
         if (res.status >= 300 and res.status < 400  and follow_redirects > 0):
@@ -466,6 +476,7 @@ class whatwaf(object):
     def scan_site(self):
         print "[+] Analizando Respuestas de Servidor WAF: " +self._url
 	acum = 0
+	resp = ""
 	for payload in WAF_PAYLOAD:
             turl= ''
             turl = deepcopy(self._url)
@@ -491,19 +502,21 @@ class whatwaf(object):
             
 
     def check_waf(self, resp):
-        self._xmlstr_dom = etree.parse(cwd+'/dic/fingerprinting.xml')
-        waf_doms = self._xmlstr_dom.xpath("waf")
-        detect = 0 
-        for waf_dom in waf_doms:
-            finger_dom = waf_dom.xpath("finger")
-            rule_dom = finger_dom[0].xpath("rule")
-            head_type =rule_dom[0].get("header").lower()
-            if head_type in resp.headers:
-                 regx = self.regexp_header(rule_dom,waf_dom,head_type,resp)
-		 if regx > 0 :
-			detect +=1
-	return detect
-		
+	try:
+        	self._xmlstr_dom = etree.parse(cwd+'/dic/fingerprinting.xml')
+        	waf_doms = self._xmlstr_dom.xpath("waf")
+        	detect = 0 
+        	for waf_dom in waf_doms:
+            		finger_dom = waf_dom.xpath("finger")
+            		rule_dom = finger_dom[0].xpath("rule")
+            		head_type =str(rule_dom[0].get("header").lower())
+            		if head_type in resp.headers:
+                 		regx = self.regexp_header(rule_dom,waf_dom,head_type,resp)
+		 		if regx > 0 :
+					detect +=1
+		return detect
+	except:
+		print "[+] Error al obtener cabeceras del Servidor : " +self._url 	
            
 
     def regexp_header(self,rule_dom,waf_dom,head_type,resp):
@@ -529,6 +542,7 @@ def initSecHttp(url,redirects=3):
 	headers = foo.check_headers(url, redirects)
 	if not headers:
         	sys.exit(1)
+		
 	for header, value in headers.iteritems():
         	if value['warn'] == 1:
             		if value['defined'] == False:
@@ -750,13 +764,18 @@ def CreateReport(filename,content):
 	print "\n\n"
 	
 def getServer(url):
-	dest_name = str(quitURL(res.url))
-    	dest_addr = socket.gethostbyname(dest_name)
-	destaddr.append(str(dest_addr))
-	destname.append(dest_name)
-    	print "[+] DNS: " + destname[0]
-	print "[+] IP : "+ destaddr[0]
-	print ""
+	try:
+		dest_name = str(quitURL(res.url))
+	    	dest_addr = socket.gethostbyname(dest_name)
+		destaddr.append(str(dest_addr))
+		destname.append(dest_name)
+	    	print "[+] DNS: " + destname[0]
+		print "[+] IP : "+ destaddr[0]
+		print ""
+	except:
+		print "[*] Error al acceder al dominio "+url
+		sys.exit(1)
+		
 
 def help():
 	parser = argparse.ArgumentParser()
@@ -826,8 +845,11 @@ if __name__ == '__main__':
 	portScan(str(dest_addr))
 	fuente += tablePScan()
     if res.hsec == True :
-	initSecHttp(res.url)
-	fuente += tableSecHTTP()
+	try:
+		initSecHttp(res.url)
+		fuente += tableSecHTTP()
+	except:
+		print "[*] No se pudo Obtener Cabeceras de Seguridad!"
     if res.url == None or res.url == "":
         results.print_help()
         sys.exit()  
@@ -835,6 +857,3 @@ if __name__ == '__main__':
 	    CreateReport(res.reporte,htmlBody(fuente))    
     else:
         sys.exit()
-
-
-
