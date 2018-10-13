@@ -46,6 +46,7 @@ pip install builtwith
 ```sh
 git clone https://github.com/SVelizDonoso/checkweb.git
 cd checkweb
+pip install -r requirements.txt
 python checkweb.py
 ```
 # Opciones
